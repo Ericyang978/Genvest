@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { View, FlatList, Text, SafeAreaView } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Appbar, TextInput, Snackbar, Button } from "react-native-paper";
-
 import { MainStackParamList } from "./MainStackScreen";
 import { getAuth, signOut } from "firebase/auth";
 
@@ -16,8 +15,12 @@ interface Props {
 
 export default function IntroScreen({ navigation }: Props) {
 
+
+  //Setting up Auth 
   const auth = getAuth();
 
+
+  //Auth related methods
   const logout = async () => {
     console.log("Hello")
       signOut(auth).then(() => {
@@ -28,12 +31,18 @@ export default function IntroScreen({ navigation }: Props) {
     return signOut;
   }
 
+
+
   return(
     <SafeAreaView>
-     <Text> Hello </Text>
+
+    
+
      <Button mode="contained" onPress={logout} > 
-        Bruh
+        go back
      </Button>
+
+
     </SafeAreaView>
 
   );
