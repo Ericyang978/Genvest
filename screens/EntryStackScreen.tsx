@@ -5,15 +5,7 @@ import { AuthStackScreen } from "./AuthStack/AuthStackScreen";
 import { RootStackScreen } from "./RootStack/RootStackScreen";
 import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 
-/* Note: it is VERY important that you understand
-    how this screen works!!! Read the logic on this screen
-    carefully (also reference App.js, the entry point of
-    our application). 
-    
-    Associated Reading:
-      https://reactnavigation.org/docs/auth-flow/
-      https://rnfirebase.io/auth/usage 
-*/
+
 export function EntryStackScreen() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<User | null>(null);
@@ -40,4 +32,3 @@ export function EntryStackScreen() {
   }
 }
 
-//why dont pass firebase app into getAuth()
