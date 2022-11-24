@@ -4,9 +4,7 @@ import { SafeAreaView, StyleSheet, ScrollView, Text } from "react-native";
 import { Appbar, TextInput, Snackbar, Button } from "react-native-paper";
 import { AuthStackParamList } from "./AuthStackScreen";
 import { getAuth, signInWithEmailAndPassword,sendPasswordResetEmail } from "firebase/auth";
-// import { errorMessage } from "../../models/errorMessage.js";
-
-// import firebase from "firebase";
+import { GoogleAuthProvider, getRedirectResult} from "firebase/auth"; //used for google Auth
 
 interface Props {
   navigation: StackNavigationProp<AuthStackParamList, "SignInScreen">;
@@ -14,27 +12,17 @@ interface Props {
 
 
 export default function SignInScreen({ navigation }: Props) {
-  /* Screen Requirements:
-      - AppBar - done
-      - Email & Password Text Input - done
-      - Submit Button - done
-      - Sign Up Button (goes to Sign Up screen) - done
-      - Reset Password Button - done
-      - Snackbar for Error Messages - done
   
-    All UI components on this screen can be found in:
-      https://callstack.github.io/react-native-paper/
-
-    All authentication logic can be found at:
-      https://firebase.google.com/docs/auth/web/starts
-  */
-
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [appError, setAppError] = useState<String>("")
   const [visible, setVisible] = useState<boolean>(false)
 
-  const auth = getAuth();
+  const auth = getAuth(); 
+  // auth.languageCode = 'it'; //provider's OAuth flow to the user's preferred language 
+
+  // const provider = new GoogleAuthProvider(); //google auth 
+
 
   // creates account
   const createAcccount = async () => {
@@ -45,10 +33,10 @@ export default function SignInScreen({ navigation }: Props) {
     catch(error:any) {
       setAppError(error.code.replace('auth/', '').replace('-', ' '));
       setVisible(true);
-   
   };
 }
 
+//Reset password method
 const resetPassword = async () => {
 
   try{
