@@ -35,7 +35,7 @@ export default function HomeScreen({ navigation }: Props) {
     //gets basic information about the logged in user from the 
     //user attributes collection in firebase 
     const getUserAttributes = async() =>{
-      if (auth.currentUser){
+      if (auth.currentUser !== null){
         const docRef = doc(db, "UserAttributes", auth.currentUser.uid);
         const docSnap = await getDoc(docRef) 
   

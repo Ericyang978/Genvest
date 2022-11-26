@@ -44,6 +44,8 @@ export default function SignUpScreen({ navigation }: Props) {
       await setDoc(doc(db, "UserAttributes",  auth.currentUser?.uid  || "noUser"), { 
         age: age,
         email: auth.currentUser?.email,
+        name: "",
+        connectedAccounts: [""],
       });
 
    } 
