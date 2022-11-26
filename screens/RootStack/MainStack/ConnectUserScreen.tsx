@@ -4,7 +4,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { Appbar, Searchbar, TextInput, Snackbar, Button, Card } from "react-native-paper";
 import { MainStackParamList } from "./MainStackScreen";
 import { getAuth, signOut } from "firebase/auth";
-import { getFirestore, doc, setDoc, collection, query, onSnapshot, getDoc } from "firebase/firestore"; 
+import { getFirestore, doc, collection, query, onSnapshot, getDoc, updateDoc } from "firebase/firestore"; 
+import { UserAttributes } from "../../../models/UserAttributes.js";
 
 
 import CardActions from "react-native-paper/lib/typescript/components/Card/CardActions";
@@ -18,28 +19,35 @@ interface Props {
 
 export default function HomeScreen({ navigation }: Props) {
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [connectUserArray, setConnectUserArray] = useState<UserAttributes[]>();
 
 
     //Defining auth
   const auth = getAuth();
     //Defining up Database
   const db = getFirestore();
-  const socialsCollection = collection(db, "userInfo");
+  const socialsCollection = collection(db, "UserAttributes");
 
 
-    //Initializes the contact Data in the list
-//   useEffect(() => {
-//     const unsubscribe = onSnapshot(query(socialsCollection), (querySnapshot) => {
-//       let tempContactArray: userInfoModel[] = [];
-//         querySnapshot.forEach((userInfoDoc: any) => {
-//             let newContactInfo: userInfoModel = userInfoDoc.data() as userInfoModel;
-//             newContactInfo.userId = userInfoDoc.id;
-//             tempContactArray.push(newContactInfo);
-//         });
-//         setContactData(tempContactArray);
-//       });
-//     return unsubscribe;
-//   }, []);
+    //Initializes the connectUserArray in the list, which finds a user to connect accounts with
+  useEffect(() => {
+    const unsubscribe = onSnapshot(query(socialsCollection), (querySnapshot) => {
+      let tempUserAttributeArray: UserAttributes[] = [];
+        querySnapshot.forEach((userAttributeDoc: any) => {
+            let newUserAttribute: UserAttributes = userAttributeDoc.data() as UserAttributes;
+            newUserAttribute.userId = userAttributeDoc.id;
+            //this if statement makes sure that the user him/herself doesn't appear as a possible connection
+            //and that documents with empty emails (meaning invalid docs basically, since all users should
+            //have a doc that has an email since this process occurs when they first sign in) are ommitted 
+            if(auth.currentUser?.uid !==  newUserAttribute.userId && newUserAttribute.email !== ""){
+                tempUserAttributeArray.push(newUserAttribute);
+            }
+        });
+        //the .sort thing is an attempt to randomize the array
+        setConnectUserArray(tempUserAttributeArray.sort((a, b) => 0.5 - Math.random()));
+      });
+    return unsubscribe;
+  }, []);
   
 
 
@@ -48,87 +56,83 @@ export default function HomeScreen({ navigation }: Props) {
     return (
       <Appbar.Header>
         <Appbar.BackAction onPress={() => {navigation.navigate("HomeScreen")}} />
-        <Appbar.Content title="Add Contact Screen" />
+        <Appbar.Content title="Connect Accounts" />
       </Appbar.Header>
     );
   };
 
 //   //Adds contact to a user's contact list (need concent from the other user, will work on later)
-//   const addContact = async (addedContactUser: userInfoModel ) =>{
+  const addContact = async (addedUser: UserAttributes ) =>{
 
-//     //makes sure a use is signed in before doing anything
-//     if(auth.currentUser !== null){
+    //makes sure a use is signed in before doing anything
+    if(auth.currentUser !== null){
 
-//         //getting informatino from the signed in user's contacts,
-//         //making sure the contact doesn't already exist and that the 
-//         //contact list isn't too large. Should not run into issue where
-//         //promise is rejected since doc doesn't exist because in the 
-//         //sign in screen a doc in this collection is immediately created
-//         // when the user signs in for the first time. 
-//         const docRef = doc(db, "userContacts", auth.currentUser.uid );
-//         const currentUserContactDoc = await getDoc(docRef)
-//        const CurrentUserContact =  currentUserContactDoc.data() as userContactModel;
+    
+        const docRef = doc(db, "UserAttributes", auth.currentUser.uid );
+        const currentUserAttributeDoc = await getDoc(docRef)
+        const currentUserConnections =  currentUserAttributeDoc.data() as UserAttributes;
 
-//        //checks to make sure this user isn't already a contact, and limits the number of contacts
-//        //a user can have
-//         if ( (!CurrentUserContact.contacts.includes(addedContactUser.userId.toString()) && CurrentUserContact.contacts.length < 7) ){
-//             const newContactWithAddition = CurrentUserContact.contacts;
-//             newContactWithAddition.push(addedContactUser.userId.toString());
-//             await setDoc(doc(db, "userContacts", auth.currentUser?.uid  || "noUser"), {
-//                 contacts: newContactWithAddition,
-//             }); 
-//         }
+       //checks to make sure this user isn't already a conection
+        if ( (!currentUserConnections.connectedAccounts.includes(addedUser.userId.toString())) ){
+
+            const newUserConnection = currentUserConnections.connectedAccounts;
+            newUserConnection.push(addedUser.userId.toString());
+
+            await updateDoc(doc(db, "UserAttributes", auth.currentUser.uid ), {
+                connectedAccounts: newUserConnection,
+            }); 
+        }
 
      
 
-//     }
-//   };
+    }
+  };
 
   
   
 
   //Renders info about the contact whcih appears, will likely
   //change search criteria from email to some username
-//   const renderContact = ({ item }: { item: userInfoModel }) => {
+  const renderContact = ({ item }: { item: UserAttributes }) => {
 
-//     //determines what happens after clicking a card (go to person's account page?)
-//     const onPress = () => {
-//         //for now it is homeScreen, will be changed later
-//       navigation.navigate("HomeScreen")
-//      }
+    //determines what happens after clicking a card (go to person's account page?)
+    const onPress = () => {
+        //for now it is homeScreen, will be changed later
+      navigation.navigate("HomeScreen")
+     }
 
-//      //checks to make sure the emails match the search bar
-//      let meetsSearchCriteria = true;
-//      if( item.Email !== undefined  && !item.Email.toUpperCase().includes(searchQuery.toUpperCase())){
-//          meetsSearchCriteria = false ;
-//      }
+     //checks to make sure the emails match the search bar
+     let meetsSearchCriteria = true;
+     if( item.email !== undefined  && !item.email.toUpperCase().includes(searchQuery.toUpperCase())){
+         meetsSearchCriteria = false ;
+     }
 
-//      //renders a card if the email isn't blank and the emails match the search criteria
-//      if (item.Email !== undefined && meetsSearchCriteria){
-//         return(
-//             <Card onPress={onPress} style={{ margin: 10 }}>
-//             <Card.Title 
-//                 title ={item.Email}
-//                 titleStyle = {{margin: 0}}
-//             />
-//         <Card.Actions>
-//             <Button icon="plus" mode="text" 
-//               onPress={() => addContact(item)}>
-//              Add
-//             </Button>
+     //renders a card if the email isn't blank and the emails match the search criteria
+     if (item.email !== undefined && meetsSearchCriteria){
+        return(
+            <Card onPress={onPress} style={{ margin: 10 }}>
+            <Card.Title 
+                title ={item.email}
+                titleStyle = {{margin: 0}}
+            />
+        <Card.Actions>
+            <Button icon="plus" mode="text" 
+              onPress={() => addContact(item)}>
+             Add
+            </Button>
 
-//           </Card.Actions>
+          </Card.Actions>
 
             
-//             </Card>
-//         );
-//     }
-//     else{
-//         return(
-//             <></>
-//         );
-//     }
-// };
+            </Card>
+        );
+    }
+    else{
+        return(
+            <></>
+        );
+    }
+};
 
   
 
@@ -143,10 +147,11 @@ export default function HomeScreen({ navigation }: Props) {
       placeholder="Search"
       onChangeText={(query) => setSearchQuery(query)}
       value={searchQuery}
+      
     />
 
-    {/* <FlatList
-        data={contactData}
+    <FlatList
+        data={connectUserArray}
          renderItem={renderContact}
          keyExtractor={(_: any, index: number) => "key-" + index}
           
@@ -154,7 +159,7 @@ export default function HomeScreen({ navigation }: Props) {
            <Text  style = {{textAlign: "center", fontSize: 20, color: "gray"}} >
              No search</Text> 
          }
-    /> */}
+    />
     
     
 
