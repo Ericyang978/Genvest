@@ -8,7 +8,6 @@ import { getFirestore, doc, collection, query, onSnapshot, getDoc, updateDoc } f
 import { UserAttributes } from "../../../models/UserAttributes.js";
 
 
-import CardActions from "react-native-paper/lib/typescript/components/Card/CardActions";
 
 
 
@@ -18,8 +17,16 @@ interface Props {
 
 
 export default function HomeScreen({ navigation }: Props) {
-    const [searchQuery, setSearchQuery] = useState<string>("");
-    const [connectUserArray, setConnectUserArray] = useState<UserAttributes[]>();
+
+   //snack bar
+   const [snackBarMessage, setSnackBarMessage] = useState<string>("");
+   const [visible, setVisible] = useState<boolean>(false);
+   const [allUserIDs, setAllUserIDs] = useState<string[]>([])
+   const [allUserEmails, setAllUserEmails] = useState<string[]>([])
+
+
+   //Text input Email Search
+   const [searchedEmail, setSearchedEmail] = useState<string>("");
 
 
     //Defining auth
@@ -28,26 +35,32 @@ export default function HomeScreen({ navigation }: Props) {
   const db = getFirestore();
   const socialsCollection = collection(db, "UserAttributes");
 
-
-    //Initializes the connectUserArray in the list, which finds a user to connect accounts with
-  useEffect(() => {
+   //Initializes an array which contains all user's and their emails
+   useEffect(() => {
     const unsubscribe = onSnapshot(query(socialsCollection), (querySnapshot) => {
-      let tempUserAttributeArray: UserAttributes[] = [];
+      let tempUserIDs: string[] = [];
+      let tempUserEmails: string[] = [];
         querySnapshot.forEach((userAttributeDoc: any) => {
-            let newUserAttribute: UserAttributes = userAttributeDoc.data() as UserAttributes;
-            newUserAttribute.userId = userAttributeDoc.id;
+          const tempUserIDValue: string = userAttributeDoc.id;
+          const tempUserEmailValue: string = userAttributeDoc.data().email
             //this if statement makes sure that the user him/herself doesn't appear as a possible connection
             //and that documents with empty emails (meaning invalid docs basically, since all users should
             //have a doc that has an email since this process occurs when they first sign in) are ommitted 
-            if(auth.currentUser?.uid !==  newUserAttribute.userId && newUserAttribute.email !== ""){
-                tempUserAttributeArray.push(newUserAttribute);
+            if(auth.currentUser?.uid !==  tempUserIDValue && tempUserEmailValue!== ""){
+              tempUserIDs.push(tempUserIDValue);
+              tempUserEmails.push(tempUserEmailValue);
+
             }
         });
-        //the .sort thing is an attempt to randomize the array
-        setConnectUserArray(tempUserAttributeArray.sort((a, b) => 0.5 - Math.random()));
+        setAllUserIDs(tempUserIDs);
+        setAllUserEmails(tempUserEmails);
+
       });
     return unsubscribe;
   }, []);
+
+
+
   
 
 
@@ -62,10 +75,17 @@ export default function HomeScreen({ navigation }: Props) {
   };
 
 //   //Adds contact to a user's contact list (need concent from the other user, will work on later)
-  const addContact = async (addedUser: UserAttributes ) =>{
+  const addContact = async () =>{
 
-    //makes sure a use is signed in before doing anything
-    if(auth.currentUser !== null){
+    //makes sure a use is signed in, and that the email is valud
+    if(auth.currentUser !== null && allUserEmails.includes(searchedEmail)){
+
+
+      //since both the userId array and userEmail array are created simultaneously, 
+      //their index's have corresponding emails and IDs for each user. Therefore, the 
+      //user ID is located in the same index as the searched email in the allUserEmail array
+      //which is why this line works
+        const searchedUserID: string =  allUserIDs[allUserEmails.indexOf(searchedEmail)];
 
     
         const docRef = doc(db, "UserAttributes", auth.currentUser.uid );
@@ -73,66 +93,37 @@ export default function HomeScreen({ navigation }: Props) {
         const currentUserConnections =  currentUserAttributeDoc.data() as UserAttributes;
 
        //checks to make sure this user isn't already a conection
-        if ( (!currentUserConnections.connectedAccounts.includes(addedUser.userId.toString())) ){
+        if ( (!currentUserConnections.connectedAccounts.includes(searchedUserID)) ){
 
             const newUserConnection = currentUserConnections.connectedAccounts;
-            newUserConnection.push(addedUser.userId.toString());
+            newUserConnection.push(searchedUserID);
 
             await updateDoc(doc(db, "UserAttributes", auth.currentUser.uid ), {
                 connectedAccounts: newUserConnection,
             }); 
+            setSnackBarMessage("Connection confirmed")
+            setVisible(true);
+        }
+        //sends a snackbar message that the searched user is already connected to current user
+        else{
+          setSnackBarMessage("This email is already connected to your account ")
+          setVisible(true);
         }
 
      
 
     }
+    //sends a message saying that the email doesn't exist
+    else{
+      setSnackBarMessage("no account with this email")
+      setVisible(true);
+    }
+
   };
 
+  const onDismissSnackBar = () => setVisible(false);
   
   
-
-  //Renders info about the contact whcih appears, will likely
-  //change search criteria from email to some username
-  const renderContact = ({ item }: { item: UserAttributes }) => {
-
-    //determines what happens after clicking a card (go to person's account page?)
-    const onPress = () => {
-        //for now it is homeScreen, will be changed later
-      navigation.navigate("HomeScreen")
-     }
-
-     //checks to make sure the emails match the search bar
-     let meetsSearchCriteria = true;
-     if( item.email !== undefined  && !item.email.toUpperCase().includes(searchQuery.toUpperCase())){
-         meetsSearchCriteria = false ;
-     }
-
-     //renders a card if the email isn't blank and the emails match the search criteria
-     if (item.email !== undefined && meetsSearchCriteria){
-        return(
-            <Card onPress={onPress} style={{ margin: 10 }}>
-            <Card.Title 
-                title ={item.email}
-                titleStyle = {{margin: 0}}
-            />
-        <Card.Actions>
-            <Button icon="plus" mode="text" 
-              onPress={() => addContact(item)}>
-             Add
-            </Button>
-
-          </Card.Actions>
-
-            
-            </Card>
-        );
-    }
-    else{
-        return(
-            <></>
-        );
-    }
-};
 
   
 
@@ -143,24 +134,27 @@ export default function HomeScreen({ navigation }: Props) {
 
       <Text> current user ID: {auth.currentUser?.uid}</Text>
 
-    <Searchbar
-      placeholder="Search"
-      onChangeText={(query) => setSearchQuery(query)}
-      value={searchQuery}
-      
-    />
+  
+      <TextInput
+          keyboardType="email-address"
+          label="Search by email"
+          value={searchedEmail}
+          onChangeText={(searchedEmail) => setSearchedEmail(searchedEmail)}
+          style={{ backgroundColor: "white", marginTop: 20, marginBottom: 20 }}
+        />
 
-    <FlatList
-        data={connectUserArray}
-         renderItem={renderContact}
-         keyExtractor={(_: any, index: number) => "key-" + index}
-          
-       ListEmptyComponent={
-           <Text  style = {{textAlign: "center", fontSize: 20, color: "gray"}} >
-             No search</Text> 
-         }
-    />
+    <Button mode="contained" onPress={addContact} > 
+        confirm
+     </Button>
     
+    <Snackbar
+          duration={1000}
+          visible={visible}
+          onDismiss={onDismissSnackBar}
+          wrapperStyle = {{ bottom:0 }}
+        >
+          {snackBarMessage}
+        </Snackbar>
     
 
      
