@@ -1,16 +1,17 @@
-import { View, Text, SafeAreaView, Image } from "react-native";
+import { View, Text, SafeAreaView, Image, TouchableOpacity } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { LinearGradient } from "expo-linear-gradient";
 import { MainStackParamList } from "./MainStackScreen";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { ScrollView } from "react-native-gesture-handler";
+
 
 interface Props {
     navigation: StackNavigationProp<MainStackParamList, "PortfolioScreen">;
   }
 
-export let PortfolioScreen = () => {
+export let PortfolioScreen = ({ navigation }: Props) => {
 
     const url = "wss://stream.data.sandbox.alpaca.markets/v2/iex";
     const webSocket = new WebSocket(url);
@@ -22,6 +23,7 @@ export let PortfolioScreen = () => {
     const [stockPrices, setStockPrices] = useState({});
     webSocket.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
+        console.log(parsedData)
         if ('T' in parsedData[0]) {
             parsedData.forEach((info) => {
             const stockSymbol = info['S']
@@ -38,7 +40,6 @@ export let PortfolioScreen = () => {
     useEffect(() => {
         console.log(stockPrices)
     }, [stockPrices]);
-
     
     return(
         <>
@@ -46,16 +47,17 @@ export let PortfolioScreen = () => {
         <ScrollView>
         <View style={{padding: 20}}><Text style={{fontWeight: 'bold', fontSize: 18}}>Top Movers</Text></View>
         <View>
-        <StockItem stockName="Apple Inc." percentage={11} increase={false} stockSymbol="AAPL" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/apple-logo-png/apple-logo-png-dallas-shootings-don-add-are-speech-zones-used-4.png"/>
+        <TouchableOpacity onPress={() => navigation.navigate("StockScreen")}><StockItem stockName="Apple Inc." percentage={11} increase={false} stockSymbol="AAPL" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/apple-logo-png/apple-logo-png-dallas-shootings-don-add-are-speech-zones-used-4.png"/></TouchableOpacity>
         <Text> </Text>
         <StockItem stockName="Meta Inc." percentage={11} increase={true} stockSymbol="META" stockPrice={1232} imageURL="https://1000logos.net/wp-content/uploads/2016/11/meta-logo.png"/>
         <Text> </Text>
         <StockItem stockName="Google Inc." percentage={11} increase={false} stockSymbol="GOOG" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-suite-everything-you-need-know-about-google-newest-0.png"/>
         <Text> </Text>
         </View>
+
         <View style={{padding: 20}}><Text style={{fontWeight: 'bold', fontSize: 18}}>My Stocks</Text></View>
         <View>
-        <StockItem stockName="Apple Inc." percentage={11} increase={false} stockSymbol="AAPL" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/apple-logo-png/apple-logo-png-dallas-shootings-don-add-are-speech-zones-used-4.png"/>
+        <TouchableOpacity onPress={() => navigation.navigate("StockScreen")}><StockItem stockName="Apple Inc." percentage={11} increase={false} stockSymbol="AAPL" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/apple-logo-png/apple-logo-png-dallas-shootings-don-add-are-speech-zones-used-4.png"/></TouchableOpacity>
         <Text> </Text>
         <StockItem stockName="Amazon Inc." percentage={11} increase={true} stockSymbol="AMZN" stockPrice={1232} imageURL="https://pngimg.com/uploads/amazon/amazon_PNG13.png"/>
         <Text> </Text>
