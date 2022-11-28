@@ -12,7 +12,6 @@ import { UserAttributes } from "../../../models/UserAttributes.js";
 
 interface Props {
   navigation: StackNavigationProp<MainStackParamList, "HomeScreen">;
-  
 }
 
 
@@ -55,12 +54,6 @@ export default function HomeScreen({ navigation }: Props) {
      getUserAttributes();  //calls the function above
 
     }, []);
-
-    
-
-  
-
-  
 
 
   //Auth related methods
@@ -110,6 +103,15 @@ export default function HomeScreen({ navigation }: Props) {
      <Text> </Text> 
 
      <Text> </Text> 
+
+
+
+     <Button mode="contained" onPress={() => navigation.navigate("StockScreen")} > 
+       Go to Stock Screen
+     </Button>
+
+     <Text> </Text> 
+
 
      <Button mode="contained" onPress={logout} > 
         Log Out
