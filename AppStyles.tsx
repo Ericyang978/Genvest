@@ -6,6 +6,7 @@ export const COLOR_ACCENT = "#dfe6e9";
 export const COLOR_LIGHT = "#dfe6e9";
 export const COLOR_DARK = "#2d3436";
 export const COLOR_BACKGROUND = "#ffffff";
+export const COLOR_NEGATIVE = "#f21f32";
 
 export const AppStyles = StyleSheet.create({
   container: {
