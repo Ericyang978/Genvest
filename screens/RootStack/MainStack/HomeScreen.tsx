@@ -99,7 +99,13 @@ export default function HomeScreen({ navigation }: Props) {
       <Button
         mode='contained'
         onPress={() => navigation.navigate("StockScreen")}>
-        Stock Screen
+        Go to Stock Screen
+      </Button>
+
+      <Text> </Text>
+
+      <Button mode='contained' onPress={logout}>
+        Log Out
       </Button>
 
       <Text> </Text>
