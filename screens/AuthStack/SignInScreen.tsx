@@ -65,6 +65,7 @@ const onDismissSnackBar = () => setVisible(false);
       
       <Text> </Text>
         <TextInput
+          keyboardType='email-address'
           label="Email"
           value={username}
           onChangeText={text => setUsername(text)}

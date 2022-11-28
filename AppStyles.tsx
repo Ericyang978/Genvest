@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 
-export const COLOR_PRIMARY = "#0984e3";
+export const COLOR_PRIMARY = "#0DCD8B";
 export const COLOR_ACCENT = "#dfe6e9";
 export const COLOR_LIGHT = "#dfe6e9";
 export const COLOR_DARK = "#2d3436";
