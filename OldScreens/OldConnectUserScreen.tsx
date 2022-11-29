@@ -2,10 +2,10 @@ import React, { useState, useEffect, useReducer } from "react";
 import { View, FlatList, Text, SafeAreaView} from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Appbar, Searchbar, TextInput, Snackbar, Button, Card } from "react-native-paper";
-import { MainStackParamList } from "./MainStackScreen";
+import { MainStackParamList } from "../screens/RootStack/MainStack/MainStackScreen";
 import { getAuth, signOut } from "firebase/auth";
 import { getFirestore, doc, collection, query, onSnapshot, getDoc, updateDoc } from "firebase/firestore"; 
-import { UserAttributes } from "../../../models/UserAttributes.js";
+import { UserAttributes } from "../models/UserAttributes.js";
 
 
 import CardActions from "react-native-paper/lib/typescript/components/Card/CardActions";

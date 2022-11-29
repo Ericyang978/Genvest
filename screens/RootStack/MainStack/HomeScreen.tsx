@@ -118,11 +118,7 @@ export default function HomeScreen({ navigation }: Props) {
 
       <Text> </Text>
 
-      <Text> </Text>
-
-      <Button mode='contained' onPress={logout}>
-        Log Out
-      </Button>
+      
     </SafeAreaView>
   );
 }
