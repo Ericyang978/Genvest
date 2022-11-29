@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { ScrollView } from "react-native-gesture-handler";
 import axios from "axios"
+import stockData from "./StockData";
 
 interface Props {
     navigation: StackNavigationProp<MainStackParamList, "PortfolioScreen">;
@@ -22,7 +23,42 @@ export let PortfolioScreen = ({ navigation }: Props) => {
         t: string;
     }
 
-    const userStocks = ["AAPL", "SPOT", "TSLA"]; 
+    const userStocks = ["AAPL", "BAC", "TSLA", "AAL", "GOOGL", "AMZN", "FOXA", "MSFT", "XOM", "BA"]; 
+   
+    useEffect(() => {
+        const start = "2022-09-27T0:00:00Z";
+        const end = "2022-09-28T11:00:00Z";
+    
+        const temp: { [key: string]: number } = {};
+        const prevTemp: { [key: string]: number } = {};  
+    
+        userStocks.forEach(async (ticker) => {
+          const response = await axios.get(
+            `https://data.alpaca.markets/v2/stocks/${ticker}/bars`,
+    
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "Apca-Api-Key-Id": "PKOWIJ6DPRMS6MHZQNWG",
+                "Apca-Api-Secret-Key": "gStXgFAxJgmzhXdyCY4dy65lrljU8wv2PbFfEk2i",
+              },
+              params: {
+                start: start,
+                end: end,
+                timeframe: TIMEFRAME,
+                adjustment: "all",
+              },
+            }
+          );
+    
+          temp[ticker] = response.data["bars"][response.data["bars"].length - 1]["c"];
+          prevTemp[ticker] = response.data["bars"][0]["c"];
+          setStockPrices({ ...temp });
+          setPrevStockPricse({ ...prevTemp });
+        });
+      }, []);
+
+    
     const url = "wss://stream.data.sandbox.alpaca.markets/v2/iex";
     const webSocket = new WebSocket(url);
     webSocket.onopen = (event) => {
@@ -31,6 +67,8 @@ export let PortfolioScreen = ({ navigation }: Props) => {
     }
 
     const [stockPrices, setStockPrices] = useState({});
+    const [prevStockPrices, setPrevStockPricse] = useState({});
+    const tempWS: { [key: string]: number } = {};
     webSocket.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
         if ('T' in parsedData[0]) {
@@ -38,7 +76,8 @@ export let PortfolioScreen = ({ navigation }: Props) => {
             const stockSymbol = info['S']
             const stockPrice = info['p']
             if (stockSymbol && stockPrice) {
-                setStockPrices({...stockPrices, [stockSymbol]: stockPrice})
+                tempWS[stockSymbol] = stockPrice;
+                setStockPrices({ ...tempWS })
             }
             })
         } else {
@@ -46,82 +85,60 @@ export let PortfolioScreen = ({ navigation }: Props) => {
         }
     }
 
-        
+     
+
+
+      const [stockItems, setStockItems] = useState({}); 
     useEffect(() => {
         
-          const start = "2022-09-27T0:00:00Z";
-          const end = "2022-09-28T11:00:00Z";
-          userStocks.forEach(async (ticker) => {
-
-            const response = await axios.get(
-                `https://data.alpaca.markets/v2/stocks/${ticker}/bars`,
-                
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Apca-Api-Key-Id": "PKOWIJ6DPRMS6MHZQNWG",
-                    "Apca-Api-Secret-Key": "gStXgFAxJgmzhXdyCY4dy65lrljU8wv2PbFfEk2i",
-                  },
-                  params: {
-                    start: start,
-                    end: end,
-                    timeframe: TIMEFRAME,
-                    adjustment: "all",
-                  },
+        Object.keys(stockPrices).forEach(async (index) => {
+            const prevClosePrice: Float = Number.parseFloat(prevStockPrices[index]);
+            const currPrice: Float = Number.parseFloat(stockPrices[index]);
+            
+            const getStockName = (ticker) => {
+                const currStockData = stockData.filter((stockObject) => {return stockObject.symbol === ticker})
+                let currStockName = "";
+                if (currStockData[0]) {
+                    currStockName = currStockData[0].name
                 }
-              )
+                return currStockName
+
+            }
+            const stockName = getStockName(index)
+
+            let percentage = Math.abs(currPrice - prevClosePrice) / prevClosePrice
+            percentage *= 100
+            percentage = Number.parseFloat(percentage.toFixed(2))
+            
+            let assetProfileURL = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${index.toLowerCase()}?modules=assetProfile`;
+            const responseAssetProfile = await axios.get(assetProfileURL);
+            let companyWebsite: string = responseAssetProfile.data.quoteSummary.result[0].assetProfile.website
+            companyWebsite = companyWebsite.split('www.')[1]
+            
+            const imageURL = `https://logo.clearbit.com/${companyWebsite}`;
+
+            const increase = currPrice - prevClosePrice > 0
+            
+            const stockElement = <StockItem key={index} stockName={stockName} percentage={percentage} increase={increase} stockSymbol={index} stockPrice={currPrice} imageURL={imageURL}/>
+            if (stockItems) {
+                setStockItems({...stockItems, [index]: stockElement})
+            } else {
+                setStockItems({index: stockElement})
+            }
 
 
-            const temp = {}
-            response.data.bars.forEach((stockData: Object) => {
-                if ('c' in stockData) {
-                    const closePrice = Number.parseInt(stockData['c'])
-                    temp[ticker] = closePrice;
-                }
-            })
-            setStockPrices({...stockPrices, ...temp})
         })
-
-    }, [])
-
-
-    useEffect(() => {
-        console.log(stockPrices)
     }, [stockPrices]);
     
+
     return(
         <>
         <PortfolioHeader />
         <ScrollView>
         <View style={{padding: 20}}><Text style={{fontWeight: 'bold', fontSize: 18}}>Top Movers</Text></View>
-        <View>
-        <TouchableOpacity onPress={() => navigation.navigate("StockScreen")}><StockItem stockName="Apple Inc." percentage={11} increase={false} stockSymbol="AAPL" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/apple-logo-png/apple-logo-png-dallas-shootings-don-add-are-speech-zones-used-4.png"/></TouchableOpacity>
-        <Text> </Text>
-        <StockItem stockName="Meta Inc." percentage={11} increase={true} stockSymbol="META" stockPrice={1232} imageURL="https://1000logos.net/wp-content/uploads/2016/11/meta-logo.png"/>
-        <Text> </Text>
-        <StockItem stockName="Google Inc." percentage={11} increase={false} stockSymbol="GOOG" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-suite-everything-you-need-know-about-google-newest-0.png"/>
-        <Text> </Text>
-        </View>
-
+            {Object.values(stockItems).sort((item) => Object.entries(item)[4][1].percentage).slice(3)}
         <View style={{padding: 20}}><Text style={{fontWeight: 'bold', fontSize: 18}}>My Stocks</Text></View>
-        <View>
-        <TouchableOpacity onPress={() => navigation.navigate("StockScreen")}><StockItem stockName="Apple Inc." percentage={11} increase={false} stockSymbol="AAPL" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/apple-logo-png/apple-logo-png-dallas-shootings-don-add-are-speech-zones-used-4.png"/></TouchableOpacity>
-        <Text> </Text>
-        <StockItem stockName="Amazon Inc." percentage={11} increase={true} stockSymbol="AMZN" stockPrice={1232} imageURL="https://pngimg.com/uploads/amazon/amazon_PNG13.png"/>
-        <Text> </Text>
-        <StockItem stockName="Boeing Inc." percentage={11} increase={false} stockSymbol="BA" stockPrice={1232} imageURL="https://impactnw.org/wp-content/uploads/2019/12/6130-300x300.png"/>
-        <Text> </Text>
-        <StockItem stockName="Microsoft Inc." percentage={11} increase={true} stockSymbol="MSFT" stockPrice={1232} imageURL="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/2048px-Microsoft_logo.svg.png"/>
-        <Text> </Text>
-        <StockItem stockName="Meta Inc." percentage={11} increase={true} stockSymbol="META" stockPrice={1232} imageURL="https://1000logos.net/wp-content/uploads/2016/11/meta-logo.png"/>
-        <Text> </Text>
-        <StockItem stockName="Google Inc." percentage={11} increase={false} stockSymbol="GOOG" stockPrice={1232} imageURL="https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-suite-everything-you-need-know-about-google-newest-0.png"/>
-        <Text> </Text>
-        <StockItem stockName="Rivian Inc." percentage={11} increase={true} stockSymbol="RIVN" stockPrice={1232} imageURL="https://upload.wikimedia.org/wikipedia/commons/e/ee/Rivian_Logo_Mark_Gold.png"/>
-        <Text> </Text>
-        <StockItem stockName="Spotify Inc." percentage={11} increase={false} stockSymbol="SPOT" stockPrice={1232} imageURL="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png"/>
-        <Text> </Text>
-        </View>
+            {Object.values(stockItems)}
         </ScrollView>
         </>
     );
@@ -143,14 +160,23 @@ const PortfolioHeader = () => {
   );
 }
 
-const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, stockName}: {imageURL: string, stockSymbol: string, stockPrice: number, increase: boolean, percentage: Float, stockName: string}) => {
+interface StockItemParams {
+    imageURL: string, 
+    stockSymbol: string, 
+    stockPrice: number, 
+    increase: boolean, 
+    percentage: Float, 
+    stockName: string
+}
+
+const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, stockName}: StockItemParams) => {
     return (
         <View style={{flex: 0, flexDirection: 'row', paddingLeft: 20}}>
         <View style={{paddingRight: 5}}>
         <Image
             style={{height: 30, width: 30, resizeMode: 'contain'}}
             source={{
-            uri: imageURL,
+            uri: `${imageURL ? imageURL : 'https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png'}`,
             }}
         />
         </View>
@@ -162,10 +188,9 @@ const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, sto
         <View style={{paddingRight: 20}}>
         <Text>${stockPrice}</Text>
         <View style={{borderRadius: 20, backgroundColor: `${increase ? "green" : "red"}`, padding: 3}}>
-            <Text style={{color: 'white', fontWeight: 'bold'}}>{percentage}%</Text>
+            <Text style={{color: 'white', fontWeight: 'bold'}}>{percentage ? percentage.toString() : "..."}%</Text>
         </View>
-        </View>
-        
+        </View> 
       </View>
     )
 }
