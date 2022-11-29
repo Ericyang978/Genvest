@@ -1,16 +1,32 @@
-import { View, Text, SafeAreaView, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { LinearGradient } from "expo-linear-gradient";
 import { MainStackParamList } from "./MainStackScreen";
 import React, { useEffect, useState } from "react";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { ScrollView } from "react-native-gesture-handler";
-import axios from "axios"
+import axios from "axios";
+import { ParamListBase } from "@react-navigation/native";
 import stockData from "./StockData";
 
 interface Props {
-    navigation: StackNavigationProp<MainStackParamList, "PortfolioScreen">;
-  }
+  navigation: StackNavigationProp<ParamListBase, "PortfolioScreen">;
+}
+
+interface CompanyStock {
+  imageURL: string;
+  stockSymbol: string;
+  stockPrice: number;
+  increase: boolean;
+  percentage: Float;
+  stockName: string;
+}
 
 export let PortfolioScreen = ({ navigation }: Props) => {
     const TIMEFRAME = "1Day";
@@ -83,6 +99,9 @@ export let PortfolioScreen = ({ navigation }: Props) => {
         } else {
             console.log(event.data)
         }
+      });
+    } else {
+      console.log(event.data);
     }
 
      
@@ -146,19 +165,43 @@ export let PortfolioScreen = ({ navigation }: Props) => {
 
 const PortfolioHeader = () => {
   return (
-    <LinearGradient colors={["darkgreen", "green", "lightgreen"]} style={{borderRadius: 20, shadowOpacity: 0.8, paddingTop: 60, paddingBottom: 50, shadowRadius: 20}}>
-      <View style={{borderRadius: 20, shadowRadius: 20, shadowOpacity: 0.8, paddingVertical: 45}}>
+    <LinearGradient
+      colors={["darkgreen", "green", "lightgreen"]}
+      style={{
+        borderRadius: 20,
+        shadowOpacity: 0.8,
+        paddingTop: 60,
+        paddingBottom: 50,
+        shadowRadius: 20,
+      }}>
+      <View
+        style={{
+          borderRadius: 20,
+          shadowRadius: 20,
+          shadowOpacity: 0.8,
+          paddingVertical: 45,
+        }}>
         <SafeAreaView>
-          <View style={{paddingHorizontal: 20}}>
-            <Text style={{color: "white", fontWeight: 'bold', fontSize: 20}}>Genvest</Text>
-            <Text style={{color: "white", fontSize: 45, fontWeight: 'bold', fontStyle: 'italic'}}>$299,375.25</Text>
-            <Text style={{color: "white"}}>Balance Available</Text>
-            </View>
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text style={{ color: "white", fontWeight: "bold", fontSize: 20 }}>
+              Genvest
+            </Text>
+            <Text
+              style={{
+                color: "white",
+                fontSize: 45,
+                fontWeight: "bold",
+                fontStyle: "italic",
+              }}>
+              $299,375.25
+            </Text>
+            <Text style={{ color: "white" }}>Balance Available</Text>
+          </View>
         </SafeAreaView>
       </View>
-   </LinearGradient>
+    </LinearGradient>
   );
-}
+};
 
 interface StockItemParams {
     imageURL: string, 
@@ -179,18 +222,19 @@ const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, sto
             uri: `${imageURL ? imageURL : 'https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png'}`,
             }}
         />
-        </View>
-        <View>
-            <Text style={{fontWeight: 'bold'}}>{stockName}</Text>
-            <Text>{stockSymbol}</Text>
-        </View>
-        <View style={{flex: 1}} />
-        <View style={{paddingRight: 20}}>
+      </View>
+      <View>
+        <Text style={{ fontWeight: "bold" }}>{stockName}</Text>
+        <Text>{stockSymbol}</Text>
+      </View>
+      <View style={{ flex: 1 }} />
+      <View style={{ paddingRight: 20 }}>
         <Text>${stockPrice}</Text>
         <View style={{borderRadius: 20, backgroundColor: `${increase ? "green" : "red"}`, padding: 3}}>
             <Text style={{color: 'white', fontWeight: 'bold'}}>{percentage ? percentage.toString() : "..."}%</Text>
         </View>
         </View> 
       </View>
-    )
-}
+    </View>
+  );
+};

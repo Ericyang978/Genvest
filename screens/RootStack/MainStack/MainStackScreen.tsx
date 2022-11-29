@@ -12,7 +12,7 @@ export type MainStackParamList = {
   PortfolioScreen: undefined;
 };
 
-const MainStack = createStackNavigator<MainStackParamList>();
+const MainStack = createStackNavigator<any>();
 
 export function MainStackScreen() {
   return (

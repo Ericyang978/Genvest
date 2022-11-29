@@ -19,6 +19,7 @@ import { COLOR_NEGATIVE, COLOR_PRIMARY } from "../../../AppStyles";
 import axios from "axios";
 import moment from "moment";
 import { Button } from "react-native-paper";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const TIMEFRAME = "1Day";
 
@@ -31,16 +32,33 @@ interface StockBarData {
   t: string;
 }
 
-const StockScreen = () => {
-  const [ticker, setTicker] = useState<string>("AAPL");
+const graphTimeConfig: { [key: string]: number } = {
+  "1 Week": 7,
+  "2 Weeks": 14,
+  "1 Month": 30,
+  "2 Months": 60,
+  "3 Months": 90,
+};
+
+const StockScreen = ({ route }) => {
+  const [ticker, setTicker] = useState<string>(route.params.ticker ?? "AAPL");
+  const [dayOffset, setDayOffset] = useState<number>(
+    graphTimeConfig["1 Month"]
+  );
   const [isNegative, setIsNegative] = useState<boolean>(false);
   const [chartData, setChartData] = useState<number[] | null>(null);
   const [labels, setLabels] = useState<string[]>([]);
 
   useEffect(() => {
     const getStocks = async () => {
-      const start = "2022-08-20T0:00:00Z"; // moment().subtract(30, "days").utc().format();
-      const end = "2022-09-21T11:00:00Z"; // moment().utc().format();
+      const start = `${moment()
+        .subtract(dayOffset, "days")
+        .toISOString()
+        .substring(0, 10)}T0:00:00Z`;
+      const end = `${moment()
+        .subtract(1, "days")
+        .toISOString()
+        .substring(0, 10)}T11:00:00Z`;
 
       const response = await axios.get(
         `https://data.alpaca.markets/v2/stocks/${ticker}/bars`,
@@ -76,7 +94,7 @@ const StockScreen = () => {
     };
 
     getStocks();
-  }, []);
+  }, [dayOffset]);
 
   return (
     <View>
@@ -86,7 +104,7 @@ const StockScreen = () => {
           <View
             style={{ display: "flex", flexDirection: "row", marginTop: 20 }}>
             <Text style={{ fontSize: 18, fontWeight: "bold", marginLeft: 12 }}>
-              Apple Inc
+              {route.params.stockName ?? "Apple Inc."}
             </Text>
             <Text style={{ fontSize: 18, fontWeight: "400", marginLeft: 3 }}>
               ({ticker})
@@ -127,11 +145,11 @@ const StockScreen = () => {
                     marginLeft: 4,
                     color: isNegative ? COLOR_NEGATIVE : COLOR_PRIMARY,
                   }}>
-                  ({isNegative ? "-" : "+"}
-                  {(
+                  ({isNegative ? "" : "+"}
+                  {Math.abs(
                     ((chartData[0] - chartData[chartData.length - 1]) /
                       chartData[0]) *
-                    100
+                      100
                   ).toFixed(2)}
                   %)
                 </Text>
@@ -191,6 +209,31 @@ const StockScreen = () => {
               }}
             />
           )}
+          <View
+            style={{ display: "flex", flexDirection: "row", marginBottom: 12 }}>
+            {Object.keys(graphTimeConfig).map((config: string) => {
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    setDayOffset(graphTimeConfig[config as string] as number);
+                  }}
+                  style={{
+                    padding: 4,
+                    marginLeft: 12,
+                    backgroundColor:
+                      graphTimeConfig[config as string] == dayOffset
+                        ? COLOR_PRIMARY
+                        : "#000",
+                    borderRadius: 20,
+                  }}>
+                  <Text
+                    style={{ fontSize: 10, fontWeight: "700", color: "#fff" }}>
+                    {config}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
           <View style={{ marginLeft: 12, marginRight: 12 }}>
             <Text style={{ fontSize: 15, fontWeight: "700", color: "#3E3E3E" }}>
               About
@@ -235,15 +278,24 @@ const StockScreen = () => {
                   </Text>
                 </View>
                 <View>
-                  <Text
-                    style={{
-                      color: "#3e3e3e",
-                      fontSize: 12,
-                      fontWeight: "600",
-                      marginLeft: 12,
-                    }}>
-                    1490.00 (+4.5%)
-                  </Text>
+                  {chartData && (
+                    <Text
+                      style={{
+                        color: "#3e3e3e",
+                        fontSize: 12,
+                        fontWeight: "600",
+                        marginLeft: 12,
+                      }}>
+                      {chartData[chartData.length - 1].toFixed(2)} (
+                      {isNegative ? "-" : "+"}
+                      {Math.abs(
+                        ((chartData[0] - chartData[chartData.length - 1]) /
+                          chartData[0]) *
+                          100
+                      ).toFixed(2)}
+                      %)
+                    </Text>
+                  )}
                 </View>
               </View>
 
@@ -437,14 +489,14 @@ const StockScreen = () => {
                 flexDirection: "row",
                 justifyContent: "center",
               }}>
-              <Button style={{ borderRadius: 20, width: 200 }} mode='contained'>
+              <Button style={{ borderRadius: 20, width: 150 }} mode='contained'>
                 Buy
               </Button>
               <Button
                 style={{
                   borderRadius: 20,
                   borderColor: COLOR_PRIMARY,
-                  width: 200,
+                  width: 150,
                   marginLeft: 12,
                 }}
                 mode='outlined'>
