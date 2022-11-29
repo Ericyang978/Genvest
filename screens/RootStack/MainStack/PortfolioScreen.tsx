@@ -5,25 +5,34 @@ import { MainStackParamList } from "./MainStackScreen";
 import React, { useEffect, useState } from "react";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { ScrollView } from "react-native-gesture-handler";
-
+import axios from "axios"
 
 interface Props {
     navigation: StackNavigationProp<MainStackParamList, "PortfolioScreen">;
   }
 
 export let PortfolioScreen = ({ navigation }: Props) => {
+    const TIMEFRAME = "1Day";
+    interface StockBarData {
+        c: number;
+        h: number;
+        l: number;
+        n: number;
+        o: number;
+        t: string;
+    }
 
+    const userStocks = ["AAPL", "SPOT", "TSLA"]; 
     const url = "wss://stream.data.sandbox.alpaca.markets/v2/iex";
     const webSocket = new WebSocket(url);
     webSocket.onopen = (event) => {
         webSocket.send(JSON.stringify({action: "auth", key: "CKCGWH2VZ2AKT1BYT9PT", secret: "wGshjHSdrm8GN9b3BXKGGgofgAFcDMf5dpkOdxzg"}))
-        webSocket.send(JSON.stringify({action:"subscribe", trades:["AAPL", "SPOT", "TSLA"]}))
+        webSocket.send(JSON.stringify({action:"subscribe", trades:userStocks}))
     }
 
     const [stockPrices, setStockPrices] = useState({});
     webSocket.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
-        console.log(parsedData)
         if ('T' in parsedData[0]) {
             parsedData.forEach((info) => {
             const stockSymbol = info['S']
@@ -36,6 +45,45 @@ export let PortfolioScreen = ({ navigation }: Props) => {
             console.log(event.data)
         }
     }
+
+        
+    useEffect(() => {
+        
+          const start = "2022-09-27T0:00:00Z";
+          const end = "2022-09-28T11:00:00Z";
+          userStocks.forEach(async (ticker) => {
+
+            const response = await axios.get(
+                `https://data.alpaca.markets/v2/stocks/${ticker}/bars`,
+                
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Apca-Api-Key-Id": "PKOWIJ6DPRMS6MHZQNWG",
+                    "Apca-Api-Secret-Key": "gStXgFAxJgmzhXdyCY4dy65lrljU8wv2PbFfEk2i",
+                  },
+                  params: {
+                    start: start,
+                    end: end,
+                    timeframe: TIMEFRAME,
+                    adjustment: "all",
+                  },
+                }
+              )
+
+
+            const temp = {}
+            response.data.bars.forEach((stockData: Object) => {
+                if ('c' in stockData) {
+                    const closePrice = Number.parseInt(stockData['c'])
+                    temp[ticker] = closePrice;
+                }
+            })
+            setStockPrices({...stockPrices, ...temp})
+        })
+
+    }, [])
+
 
     useEffect(() => {
         console.log(stockPrices)
