@@ -9,11 +9,10 @@ export const styles = StyleSheet.create({
       paddingHorizontal: 10,
     },
     image: {
-      
       justifyContent: "center",
       height: "45%",
       width: "100%",
-      // resizeMode: "contain",
+      resizeMode: "contain",
     },
     titleText: {
       fontWeight: "bold",

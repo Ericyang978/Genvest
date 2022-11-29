@@ -96,11 +96,7 @@ export default function HomeScreen({ navigation }: Props) {
 
       <Text> </Text>
 
-      <Button
-        mode='contained'
-        onPress={() => navigation.navigate("StockScreen")}>
-        Go to Stock Screen
-      </Button>
+    
 
       <Text> </Text>
 
