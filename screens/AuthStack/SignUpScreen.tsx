@@ -43,7 +43,7 @@ export default function SignUpScreen({ navigation }: Props) {
       //immediately adds a new doc with the user ID as title, and lists user's age 
       await setDoc(doc(db, "UserAttributes",  auth.currentUser?.uid  || "noUser"), { 
         age: age,
-        email: auth.currentUser?.email,
+        email: auth.currentUser?.email?.toLowerCase(),
         name: "",
         connectedAccounts: [""],
       });

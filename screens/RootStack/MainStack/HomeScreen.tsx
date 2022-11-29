@@ -104,17 +104,21 @@ export default function HomeScreen({ navigation }: Props) {
 
       <Text> </Text>
 
+      <Button
+        mode='contained'
+        onPress={() => navigation.navigate("PortfolioScreen")}>
+        Go to Portfolio Screen
+      </Button>
+
+      <Text> </Text>
+
       <Button mode='contained' onPress={logout}>
         Log Out
       </Button>
 
       <Text> </Text>
 
-      <Text> </Text>
-
-      <Button mode='contained' onPress={logout}>
-        Log Out
-      </Button>
+      
     </SafeAreaView>
   );
 }
