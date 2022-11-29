@@ -96,6 +96,27 @@ const StockScreen = ({ navigation, route }) => {
     getStocks();
   }, [dayOffset]);
 
+
+  const  [companyDescription, setCompanyDescription] = useState(); 
+
+  useEffect(() => {
+
+    const getCompanyDesc = async (ticker: string) => {
+      let assetProfileURL = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker.toLowerCase()}?modules=assetProfile`;
+      console.log(assetProfileURL)
+      const responseAssetProfile = await axios.get(assetProfileURL);
+      const description = responseAssetProfile.data.quoteSummary.result[0].assetProfile.longBusinessSummary
+      setCompanyDescription(description)
+  
+    }
+
+    getCompanyDesc(ticker);
+
+  }, [])
+
+   
+  
+
   return (
     <View>
       <SafeAreaView
@@ -210,7 +231,7 @@ const StockScreen = ({ navigation, route }) => {
             />
           )}
           <View
-            style={{ display: "flex", flexDirection: "row", marginBottom: 12 }}>
+            style={{ display: "flex", flexDirection: "row", marginBottom: 12, alignSelf: 'center', alignContent: 'center' }}>
             {Object.keys(graphTimeConfig).map((config: string) => {
               return (
                 <TouchableOpacity
@@ -245,13 +266,7 @@ const StockScreen = ({ navigation, route }) => {
                 fontSize: 11,
                 lineHeight: 20,
               }}>
-              Apple Inc. is an American multinational technology company
-              headquartered in Cupertino, California, United States. Apple is
-              the largest technology company by revenue (totaling US$365.8
-              billion in 2021) and, as of June 2022, is the world's biggest
-              company by market capitalization, the fourth-largest personal
-              computer vendor by unit sales and second-largest mobile phone
-              manufacturer.
+              {companyDescription && companyDescription.substring(0, 500) + "..."}
             </Text>
             <View style={{ marginTop: 12 }}>
               <View

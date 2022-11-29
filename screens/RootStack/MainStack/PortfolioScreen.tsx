@@ -30,16 +30,9 @@ interface CompanyStock {
 
 export let PortfolioScreen = ({ navigation }: Props) => {
     const TIMEFRAME = "1Day";
-    interface StockBarData {
-        c: number;
-        h: number;
-        l: number;
-        n: number;
-        o: number;
-        t: string;
-    }
 
     const userStocks = ["AAPL", "BAC", "TSLA", "AAL", "GOOGL", "AMZN", "FOXA", "MSFT", "XOM", "BA"]; 
+    const [lastUpdated, setLastUpdated] = useState(Date.now());
    
     useEffect(() => {
         const start = "2022-09-27T0:00:00Z";
@@ -93,6 +86,7 @@ export let PortfolioScreen = ({ navigation }: Props) => {
             const stockPrice = info['p']
             if (stockSymbol && stockPrice) {
                 tempWS[stockSymbol] = stockPrice;
+                
                 setStockPrices({ ...tempWS })
             }
             })
@@ -104,7 +98,7 @@ export let PortfolioScreen = ({ navigation }: Props) => {
 
       const [stockItems, setStockItems] = useState({}); 
     useEffect(() => {
-        
+        setLastUpdated(Date.now())
         Object.keys(stockPrices).forEach(async (index) => {
             const prevClosePrice: Float = Number.parseFloat(prevStockPrices[index]);
             const currPrice: Float = Number.parseFloat(stockPrices[index]);
@@ -149,6 +143,10 @@ export let PortfolioScreen = ({ navigation }: Props) => {
         <>
         <PortfolioHeader />
         <ScrollView>
+        <View style={{alignContent: 'center', alignSelf: "center", paddingTop: 10}}>
+        <Text style={{color: 'grey', alignItems: "center"}}>{'Last Updated: ' + new Date(lastUpdated).toLocaleDateString() + ' ' + new Date(lastUpdated).toLocaleTimeString()}</Text>
+        </View>
+        
         <View style={{padding: 20}}><Text style={{fontWeight: 'bold', fontSize: 18}}>Top Movers</Text></View>
             {Object.values(stockItems).sort((item) => Object.entries(item)[4][1].percentage).slice(3)}
         <View style={{padding: 20}}><Text style={{fontWeight: 'bold', fontSize: 18}}>My Stocks</Text></View>
