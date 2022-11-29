@@ -1,10 +1,12 @@
 import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, ScrollView, Text } from "react-native";
+import { SafeAreaView, Image, StyleSheet, ScrollView, Text } from "react-native";
 import { Appbar, TextInput, Snackbar, Button } from "react-native-paper";
 import { AuthStackParamList } from "./AuthStackScreen";
 import { getAuth, signInWithEmailAndPassword,sendPasswordResetEmail } from "firebase/auth";
 import { GoogleAuthProvider, getRedirectResult} from "firebase/auth"; //used for google Auth
+import { styles } from "./SignInScreen.Styles";
+
 
 interface Props {
   navigation: StackNavigationProp<AuthStackParamList, "SignInScreen">;
@@ -56,42 +58,38 @@ const onDismissSnackBar = () => setVisible(false);
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
 
-        <Appbar.Header>
-         {/* <Appbar.BackAction onPress={() => {}} /> */}
-         <Appbar.Content title="Sign in" />
-        </Appbar.Header>
+    
+  
+      <SafeAreaView >
+
+      <Text style = {styles.titleText}> Genvest </Text> 
       
-      <Text> </Text>
-        <TextInput
+        <TextInput style = {styles.textInput}
           keyboardType='email-address'
           label="Email"
           value={username}
           onChangeText={text => setUsername(text)}
         />
-         <Text> </Text> 
-         <TextInput
+         <TextInput style = {styles.textInput}
           label="password"
           value={password}
           secureTextEntry={true}
           onChangeText={text => setPassword(text)}
         /> 
+         <Button  style = {styles.resetPasswordButton} mode="text" onPress={resetPassword}>
+          reset password
+        </Button>
         
-         <Text> </Text> 
-        <Button  mode="contained" onPress={createAcccount}>
+        <Button  style = {styles.logInButton} mode="contained" onPress={createAcccount}>
           Login
         </Button>
 
-        <Text> </Text> 
-        <Button  mode="contained" onPress={() => navigation.navigate("SignUpScreen")}>
+        <Button style = {styles.signUpButton} mode="text" onPress={() => navigation.navigate("SignUpScreen")}>
           Sign Up
         </Button>
 
-        <Text> </Text> 
-        <Button  mode="outlined" onPress={resetPassword}>
-          reset password
-        </Button>
+       
 
         <Snackbar
           duration={3000}
@@ -107,10 +105,3 @@ const onDismissSnackBar = () => setVisible(false);
   );
 }
   
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 32,
-    backgroundColor: "#ffffff",
-  },
-});

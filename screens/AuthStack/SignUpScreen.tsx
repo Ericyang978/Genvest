@@ -1,11 +1,14 @@
 import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useState } from "react";
-import { Text, SafeAreaView, StyleSheet, ScrollView } from "react-native";
+import { Text, SafeAreaView, StyleSheet, ScrollView, Image } from "react-native";
 import { Appbar, TextInput, Snackbar, Button } from "react-native-paper";
 import { AuthStackParamList } from "./AuthStackScreen";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
-import { Double } from "react-native/Libraries/Types/CodegenTypes";
+import { styles } from "./SignUpScreen.Styles";
+
+
+
 // import firebase from "firebase";
 
 interface Props {
@@ -66,32 +69,34 @@ const onToggleSnackBar = () => setVisible(!visible);
 
 const onDismissSnackBar = () => setVisible(false);
 
+
+
   return (
     <>
-      <SafeAreaView style={styles.container}>
+  
+    <Image style = {styles.image}
+        source ={require("../../assets/FrontCoverImage.png")}
+      />
+  
+    <SafeAreaView style = {styles.container}>
 
-        <Appbar.Header>
-         {/* <Appbar.BackAction onPress={() => {navigation.navigate("SignInScreen")}} /> */}
-         <Appbar.Content title="Create an Account"/>
-        </Appbar.Header>
-      
-      <Text> </Text>
-        <TextInput
+      <Text style = {styles.titleText}
+      > Welcome to Genvest</Text>
+        <TextInput style = {styles.textInput}
+
           keyboardType='email-address'
           label="Email"
           value={username}
           onChangeText={text => setUsername(text)}
         />
-         <Text> </Text> 
-         <TextInput
+         <TextInput style = {styles.textInput}
           label="password"
           value={password}
           secureTextEntry={true}
           onChangeText={text => setPassword(text)}
         /> 
 
-        <Text> </Text> 
-        <TextInput 
+        <TextInput style = {styles.textInput}
           keyboardType='numeric'
           label="age"
           value={age}
@@ -99,15 +104,12 @@ const onDismissSnackBar = () => setVisible(false);
           maxLength={3}  //setting limit of input
         />
         
-         <Text> </Text> 
-        <Button  mode="contained" onPress={createAcccount}>
-         create account
+        <Button  style = {styles.signUpButton} mode="contained" onPress={createAcccount}>
+         Sign Up
         </Button>
 
-
-        <Text> </Text> 
-        <Button  mode="contained" onPress={() => navigation.navigate("SignInScreen")}>
-          Sign In
+        <Button  style = {styles.logInButton} mode="text" onPress={() => navigation.navigate("SignInScreen")}>
+          Log in
         </Button>
 
         <Snackbar
@@ -123,12 +125,5 @@ const onDismissSnackBar = () => setVisible(false);
     </>
   );
 }
-  
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 32,
-    backgroundColor: "#ffffff",
-  },
-});
+
 
