@@ -40,7 +40,7 @@ const graphTimeConfig: { [key: string]: number } = {
   "3 Months": 90,
 };
 
-const StockScreen = ({ route }) => {
+const StockScreen = ({ navigation, route }) => {
   const [ticker, setTicker] = useState<string>(route.params.ticker ?? "AAPL");
   const [dayOffset, setDayOffset] = useState<number>(
     graphTimeConfig["1 Month"]
@@ -502,6 +502,13 @@ const StockScreen = ({ route }) => {
                 mode='outlined'>
                 Sell
               </Button>
+            </View>
+            <View style={{justifyContent: 'center', alignSelf: 'center'}}>
+
+            <Button onPress={() => {navigation.goBack()}} style={{ borderRadius: 20, width: 150, margin: 10 }}>
+                Go Back
+              </Button>
+
             </View>
           </View>
         </ScrollView>

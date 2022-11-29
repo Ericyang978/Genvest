@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { ScrollView } from "react-native-gesture-handler";
 import axios from "axios";
-import { ParamListBase } from "@react-navigation/native";
+import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import stockData from "./StockData";
 
 interface Props {
@@ -99,13 +99,8 @@ export let PortfolioScreen = ({ navigation }: Props) => {
         } else {
             console.log(event.data)
         }
-      });
-    } else {
-      console.log(event.data);
-    }
-
+      };
      
-
 
       const [stockItems, setStockItems] = useState({}); 
     useEffect(() => {
@@ -138,7 +133,7 @@ export let PortfolioScreen = ({ navigation }: Props) => {
 
             const increase = currPrice - prevClosePrice > 0
             
-            const stockElement = <StockItem key={index} stockName={stockName} percentage={percentage} increase={increase} stockSymbol={index} stockPrice={currPrice} imageURL={imageURL}/>
+            const stockElement = <StockItem key={index} navigation={navigation} stockName={stockName} percentage={percentage} increase={increase} stockSymbol={index} stockPrice={currPrice} imageURL={imageURL}/>
             if (stockItems) {
                 setStockItems({...stockItems, [index]: stockElement})
             } else {
@@ -209,32 +204,43 @@ interface StockItemParams {
     stockPrice: number, 
     increase: boolean, 
     percentage: Float, 
-    stockName: string
+    stockName: string,
+    navigation: any
 }
 
-const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, stockName}: StockItemParams) => {
+const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, stockName, navigation}: StockItemParams) => {
     return (
-        <View style={{flex: 0, flexDirection: 'row', paddingLeft: 20}}>
-        <View style={{paddingRight: 5}}>
-        <Image
-            style={{height: 30, width: 30, resizeMode: 'contain'}}
-            source={{
-            uri: `${imageURL ? imageURL : 'https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png'}`,
-            }}
-        />
-      </View>
-      <View>
-        <Text style={{ fontWeight: "bold" }}>{stockName}</Text>
-        <Text>{stockSymbol}</Text>
-      </View>
-      <View style={{ flex: 1 }} />
-      <View style={{ paddingRight: 20 }}>
-        <Text>${stockPrice}</Text>
-        <View style={{borderRadius: 20, backgroundColor: `${increase ? "green" : "red"}`, padding: 3}}>
-            <Text style={{color: 'white', fontWeight: 'bold'}}>{percentage ? percentage.toString() : "..."}%</Text>
-        </View>
-        </View> 
-      </View>
-    </View>
+        <TouchableOpacity
+               onPress={() =>
+                 navigation.navigate("StockScreen", {
+                   stockName: stockName,
+                   ticker: stockSymbol,
+                 })
+               }>
+
+                <View style={{flex: 0, flexDirection: 'row', paddingLeft: 20}}>
+                        <View style={{paddingRight: 5}}>
+                        <Image
+                            style={{height: 30, width: 30, resizeMode: 'contain'}}
+                            source={{
+                            uri: `${imageURL ? imageURL : 'https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png'}`,
+                            }}
+                        />
+                    </View>
+                    <View>
+                        <Text style={{ fontWeight: "bold" }}>{stockName}</Text>
+                        <Text>{stockSymbol}</Text>
+                    </View>
+                    <View style={{ flex: 1 }} />
+                    <View style={{ paddingRight: 20 }}>
+                        <Text>${stockPrice}</Text>
+                        <View style={{borderRadius: 20, backgroundColor: `${increase ? "green" : "red"}`, padding: 3}}>
+                            <Text style={{color: 'white', fontWeight: 'bold'}}>{percentage}%</Text>
+                        </View>
+                        </View>
+                        
+                    </View>
+               </TouchableOpacity>
+        
   );
 };
