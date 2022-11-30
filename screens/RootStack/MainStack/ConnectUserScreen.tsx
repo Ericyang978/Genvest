@@ -138,7 +138,7 @@ export default function ConnectUserScreen({ navigation }: Props) {
   };
 
   const onDismissSnackBar = () => setVisible(false);
-  
+
   
 
   
@@ -162,7 +162,7 @@ export default function ConnectUserScreen({ navigation }: Props) {
     <Button mode="contained" onPress={addContact} > 
         confirm
      </Button>
-    
+
     <Snackbar
           duration={1000}
           visible={visible}
