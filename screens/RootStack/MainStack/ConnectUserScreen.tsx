@@ -16,7 +16,7 @@ interface Props {
 }
 
 
-export default function HomeScreen({ navigation }: Props) {
+export default function ConnectUserScreen({ navigation }: Props) {
 
    //snack bar
    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
