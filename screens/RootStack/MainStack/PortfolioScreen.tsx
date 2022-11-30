@@ -104,8 +104,8 @@ export let PortfolioScreen = ({ navigation }: Props) => {
       setLastUpdated(Date.now())
         let temp = {}
         Object.keys(stockPrices).forEach(async (index) => {
-            const prevClosePrice: Float = Number.parseFloat(prevStockPrices[index]);
-            const currPrice: Float = Number.parseFloat(stockPrices[index]);
+            const prevClosePrice: Float = await Number.parseFloat(prevStockPrices[index]);
+            const currPrice: Float = await Number.parseFloat(stockPrices[index]);
             
             const getStockName = (ticker) => {
                 const currStockData = stockData.filter((stockObject) => {return stockObject.symbol === ticker})
