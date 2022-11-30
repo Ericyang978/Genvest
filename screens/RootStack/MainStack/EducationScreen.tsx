@@ -15,7 +15,7 @@ interface Props {
         return (
           <Appbar.Header>
             <Appbar.BackAction onPress={() => {navigation.navigate("HomeScreen")}} />
-          </Appbar.Header>
+          </Appbar.Header > 
         );
       };
     return (
