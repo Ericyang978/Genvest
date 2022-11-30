@@ -12,7 +12,7 @@ interface Props {
   navigation: StackNavigationProp<MainStackParamList, "Quiz1Screen">;
 }
 
-export default function quiz1({ navigation }: Props) {
+export default function Quiz1Screen({ navigation }: Props) {
 
   const [question, setQuestion] = useState("");
 const [answer, setAnswer] = useState("")

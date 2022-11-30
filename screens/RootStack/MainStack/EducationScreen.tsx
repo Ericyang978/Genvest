@@ -21,34 +21,26 @@ interface Props {
 export default function DividendsScreen({ navigation }: Props) {
   const AppBarComponent = () => {
     return (
-      <Appbar.Header>
-        <Appbar.BackAction
-          onPress={() => {
-            navigation.navigate("HomeScreen");
-          }}
-        />
-      </Appbar.Header>
-    );
-  };
-  return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.container}>
+        <SafeAreaView style = {styles.container}>
+          <ScrollView style = {styles.container}>
+          
         {/* <AppBarComponent />  */}
-        <Text style={styles.discoverCoursesText}> Discover Courses </Text>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate("DividendsScreen")}>
-          <Image
-            style={{
-              height: 121,
-              width: 340,
-              marginTop: 20,
-              resizeMode: "contain",
-            }}
-            resizeMode='cover'
-            source={require("./educationutils/images/mask-group1.png")}
-          />
-          <Text style={styles.introToInvesting}>Intro to Dividends</Text>
+        <Text style = {styles.discoverCoursesText}> Discover Courses </Text>
+        
+        <TouchableOpacity onPress={() => navigation.navigate("DividendsScreen")}>
+            <Image
+              style = {{
+                height: 121, 
+                width: 340, 
+                marginTop: 20,
+                resizeMode: 'contain',
+                
+   
+             }}
+            resizeMode="cover"
+            source = { require("./educationutils/images/mask-group1.png")}
+            />
+             <Text style={styles.introToInvesting}>Intro to Dividends</Text>
         </TouchableOpacity>
 
         <TouchableOpacity>

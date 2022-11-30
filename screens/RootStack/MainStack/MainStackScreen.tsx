@@ -6,6 +6,8 @@ import StockScreen from "./StockScreen";
 import { PortfolioScreen } from "./PortfolioScreen";
 import SettingScreen from "./SettingScreen";
 import EducationScreen from "./EducationScreen";
+import DividendsScreen  from "./DividendsScreen";
+import Quiz1Screen from "./Quiz1Screen"
 
 
 export type MainStackParamList = {
@@ -15,6 +17,9 @@ export type MainStackParamList = {
   PortfolioScreen: undefined;
   SettingScreen: undefined;
   EducationScreen: undefined;
+  DividendsScreen: undefined;
+  Quiz1Screen: undefined;
+  
 
 };
 
@@ -45,6 +50,19 @@ export function MainStackScreen() {
         options={{ headerShown: false }}
         component={EducationScreen}
       />
+
+      <MainStack.Screen
+        name='DividendsScreen'
+        options={{ headerShown: false }}
+        component={DividendsScreen}
+      />
+
+      <MainStack.Screen
+        name='Quiz1Screen'
+        options={{ headerShown: false }}
+        component={Quiz1Screen}
+      />
+
 
        <MainStack.Screen
         name='SettingScreen'
