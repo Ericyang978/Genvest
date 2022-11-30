@@ -64,15 +64,6 @@ export default function SettingScreen({ navigation }: Props) {
   
 
 
-//   //App Bar (top of application)
-//   const AppBarComponent = () => {
-//     return (
-//       <Appbar.Header>
-//         <Appbar.BackAction onPress={() => {navigation.navigate("HomeScreen")}} />
-//         <Appbar.Content title="Connect Accounts" />
-//       </Appbar.Header>
-//     );
-//   };
 
 // //   //Adds contact to a user's contact list (need concent from the other user, will work on later)
 //   const addContact = async () =>{
