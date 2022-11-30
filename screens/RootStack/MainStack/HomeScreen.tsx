@@ -7,6 +7,9 @@ import { getAuth, signOut } from "firebase/auth";
 // import { getFirestore, collection, query, onSnapshot, orderBy, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { getFirestore, doc, collection, getDoc } from "firebase/firestore";
 import { UserAttributes } from "../../../models/UserAttributes.js";
+import { BottomNavigation } from 'react-native-paper';
+import portfolioScreen from "./PortfolioScreen";
+
 
 interface Props {
   navigation: StackNavigationProp<MainStackParamList, "HomeScreen">;
@@ -80,11 +83,44 @@ export default function HomeScreen({ navigation }: Props) {
     }
   };
 
+   //Bottom Navigation Code 
+
+   const PortfolioScreen = () => <Text> Portfolio</Text> ;
+
+   const SettingRoute = () => <Text> Settings </Text> ;
+
+   const EducationRoute = () => <Text>Education</Text>;
+
+   // const [lastUpdated, setLastUpdated] = useState(Date.now());
+
+     const [index, setIndex] = useState(0);
+     const [routes, setRoutes] = useState([
+       { key: 'portfolio', title: 'Portfolio', focusedIcon: 'heart', unfocusedIcon: 'heart-outline'},
+       { key: 'settings', title: 'Settings', focusedIcon: 'heart', unfocusedIcon: 'heart-outline'},
+       { key: 'education', title: 'Education', focusedIcon: 'book' },
+     ]);
+
+     const renderScene = BottomNavigation.SceneMap({
+       portfolio: PortfolioScreen, 
+       education: EducationRoute,
+       settings: SettingRoute,
+     });
+
   return (
+
+    // <BottomNavigation
+    // navigationState={{ index, routes }}
+    // onIndexChange={setIndex}
+    // renderScene={renderScene}
+    // />
+
     <SafeAreaView>
+        <Text> hello</Text>
+        
+
       <AppBarComponent />
       <TypeOfAccount />
-
+  
       <Text> current user ID: {auth.currentUser?.uid}</Text>
       <Button
         mode='contained'
@@ -112,9 +148,9 @@ export default function HomeScreen({ navigation }: Props) {
         Log Out
       </Button>
 
-      <Text> </Text>
+      <Text> </Text> 
 
       
-    </SafeAreaView>
+     </SafeAreaView>
   );
 }
