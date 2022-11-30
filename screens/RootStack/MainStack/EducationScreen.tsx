@@ -18,8 +18,7 @@ interface Props {
   navigation: StackNavigationProp<MainStackParamList, "EducationScreen">;
 }
 
-export default function DividendsScreen({ navigation }: Props) {
-  const AppBarComponent = () => {
+export default function EducationScreen({ navigation }: Props) {
     return (
         <SafeAreaView style = {styles.container}>
           <ScrollView style = {styles.container}>
@@ -127,7 +126,7 @@ export default function DividendsScreen({ navigation }: Props) {
       </ScrollView>
     </SafeAreaView>
   );
-}
+
 }
 
 /*
