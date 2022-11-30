@@ -22,7 +22,7 @@ interface Props {
         <SafeAreaView style = {styles.container}>
           <ScrollView style = {styles.container}>
           
-        <AppBarComponent /> 
+        {/* <AppBarComponent />  */}
         <Text style = {styles.discoverCoursesText}> Discover Courses </Text>
         
         <TouchableOpacity onPress={() => navigation.navigate("DividendsScreen")}>

@@ -13,7 +13,7 @@ interface Props {
     const AppBarComponent = () => {
         return (
           <Appbar.Header>
-            <Appbar.BackAction onPress={() => {navigation.navigate("EducationScreen")}} />
+            <Appbar.BackAction onPress={() => {navigation.navigate("HomeScreen")}} />
           </Appbar.Header>
           
         );
