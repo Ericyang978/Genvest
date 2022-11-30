@@ -4,12 +4,18 @@ import HomeScreen from "./HomeScreen";
 import ConnectUserScreen from "./ConnectUserScreen";
 import StockScreen from "./StockScreen";
 import { PortfolioScreen } from "./PortfolioScreen";
+import SettingScreen from "./SettingScreen";
+import EducationScreen from "./EducationScreen";
+
 
 export type MainStackParamList = {
   StockScreen: undefined;
   ConnectUserScreen: undefined;
   HomeScreen: undefined;
   PortfolioScreen: undefined;
+  SettingScreen: undefined;
+  EducationScreen: undefined;
+
 };
 
 const MainStack = createStackNavigator<any>();
@@ -34,12 +40,26 @@ export function MainStackScreen() {
         options={{ headerShown: false }}
         component={PortfolioScreen}
       />
+        <MainStack.Screen
+        name='EducationScreen'
+        options={{ headerShown: false }}
+        component={EducationScreen}
+      />
+
+       <MainStack.Screen
+        name='SettingScreen'
+        options={{ headerShown: false }}
+        component={SettingScreen}
+      />
 
       <MainStack.Screen
         name='ConnectUserScreen'
         options={{ headerShown: false }}
         component={ConnectUserScreen}
       />
+
+
+    
     </MainStack.Navigator>
   );
 }

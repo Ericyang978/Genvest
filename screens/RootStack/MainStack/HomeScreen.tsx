@@ -7,8 +7,12 @@ import { getAuth, signOut } from "firebase/auth";
 // import { getFirestore, collection, query, onSnapshot, orderBy, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { getFirestore, doc, collection, getDoc } from "firebase/firestore";
 import { UserAttributes } from "../../../models/UserAttributes.js";
-import { BottomNavigation } from 'react-native-paper';
-import portfolioScreen from "./PortfolioScreen";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+// import { BottomNavigation } from 'react-native-paper';
+import SettingScreen from "./SettingScreen";
+import {PortfolioScreen} from "./PortfolioScreen"
+import EducationScreen from "./EducationScreen"
+import {Ionicons} from "@expo/vector-icons";
 
 
 interface Props {
@@ -85,72 +89,103 @@ export default function HomeScreen({ navigation }: Props) {
 
    //Bottom Navigation Code 
 
-   const PortfolioScreen = () => <Text> Portfolio</Text> ;
+  //  const PortfolioScreen = () => <Text> Portfolio</Text> ;
 
-   const SettingRoute = () => <Text> Settings </Text> ;
 
-   const EducationRoute = () => <Text>Education</Text>;
+  //  const EducationRoute = () => <Text>Education</Text>;
 
-   // const [lastUpdated, setLastUpdated] = useState(Date.now());
 
-     const [index, setIndex] = useState(0);
-     const [routes, setRoutes] = useState([
-       { key: 'portfolio', title: 'Portfolio', focusedIcon: 'heart', unfocusedIcon: 'heart-outline'},
-       { key: 'settings', title: 'Settings', focusedIcon: 'heart', unfocusedIcon: 'heart-outline'},
-       { key: 'education', title: 'Education', focusedIcon: 'book' },
-     ]);
+  //  //https://materialdesignicons.com/ icons list
+  //    const [index, setIndex] = useState(0);
+  //    const [routes, setRoutes] = useState([
+  //      { key: 'portfolio', title: 'Portfolio', focusedIcon: 'hand-coin', unfocusedIcon: 'hand-coin-outline'},
+  //      { key: 'education', title: 'Education', focusedIcon: 'book', unfocusedIcon: 'book-outline' },
+  //      { key: 'settings', title: 'Settings', focusedIcon: 'account-circle', unfocusedIcon: 'account-circle-outline'},
+  //    ]);
 
-     const renderScene = BottomNavigation.SceneMap({
-       portfolio: PortfolioScreen, 
-       education: EducationRoute,
-       settings: SettingRoute,
-     });
+  //    const renderScene = BottomNavigation.SceneMap({
+  //     portfolio: PortfolioScreen,   
+  //     education: EducationRoute,
+  //     settings: SettingScreen,
+  //    });
+
+  const Tab = createBottomTabNavigator();
 
   return (
 
+    <>
+      <Tab.Navigator
+    screenOptions={({ route }) => ({
+      tabBarIcon: ({ focused, color, size }) => {
+        let iconName: any = "alert";
+
+        if (route.name === 'Portfolio') {
+          iconName = focused
+            ? 'cash' 
+            : 'cash-outline';
+        } else if (route.name === 'Settings') {
+          iconName = focused ? 'cog': 'cog-outline';
+        }
+        else if (route.name === 'Education') {
+          iconName = focused ? 'book': 'book-outline';
+        }
+
+        // https://icons.expo.fyi/
+        return  <Ionicons name = {iconName} size={size} color={color} /> ;
+      },
+      tabBarActiveTintColor: 'green',
+      tabBarInactiveTintColor: 'gray',
+    })}
+  >
+    <Tab.Screen name="Portfolio" component={PortfolioScreen} />
+    <Tab.Screen name="Education" component={EducationScreen} />
+    <Tab.Screen name="Settings" component={SettingScreen} />
+  </Tab.Navigator>
+    </>
+    
     // <BottomNavigation
     // navigationState={{ index, routes }}
     // onIndexChange={setIndex}
     // renderScene={renderScene}
     // />
 
-    <SafeAreaView>
-        <Text> hello</Text>
+    // <SafeAreaView>
+       
         
 
-      <AppBarComponent />
-      <TypeOfAccount />
+    //   <AppBarComponent />
+    //   <TypeOfAccount />
   
-      <Text> current user ID: {auth.currentUser?.uid}</Text>
-      <Button
-        mode='contained'
-        onPress={() => navigation.navigate("ConnectUserScreen")}>
-        Connect User Accounts
-      </Button>
+    //   <Text> current user ID: {auth.currentUser?.uid}</Text>
+    //   <Button
+    //     mode='contained'
+    //     onPress={() => navigation.navigate("ConnectUserScreen")}>
+    //     Connect User Accounts
+    //   </Button>
 
-      <Text> </Text>
+    //   <Text> </Text>
 
-      <Text> </Text>
+    //   <Text> </Text>
 
     
 
-      <Text> </Text>
+    //   <Text> </Text>
 
-      <Button
-        mode='contained'
-        onPress={() => navigation.navigate("PortfolioScreen")}>
-        Go to Portfolio Screen
-      </Button>
+    //   <Button
+    //     mode='contained'
+    //     onPress={() => navigation.navigate("PortfolioScreen")}>
+    //     Go to Portfolio Screen
+    //   </Button>
 
-      <Text> </Text>
+    //   <Text> </Text>
 
-      <Button mode='contained' onPress={logout}>
-        Log Out
-      </Button>
+    //   <Button mode='contained' onPress={logout}>
+    //     Log Out
+    //   </Button>
 
-      <Text> </Text> 
+    //   <Text> </Text> 
 
       
-     </SafeAreaView>
+    //  </SafeAreaView>
   );
 }

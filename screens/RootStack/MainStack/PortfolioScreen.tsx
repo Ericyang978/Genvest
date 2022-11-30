@@ -9,10 +9,11 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { LinearGradient } from "expo-linear-gradient";
 import { MainStackParamList } from "./MainStackScreen";
 import React, { useEffect, useState } from "react";
-import { Float } from "react-native/Libraries/Types/CodegenTypes";
+import {Float } from "react-native/Libraries/Types/CodegenTypes";
 import { ScrollView } from "react-native-gesture-handler";
 import axios from "axios";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
+
 import stockData from "./StockData";
 
 interface Props {
@@ -137,7 +138,11 @@ export let PortfolioScreen = ({ navigation }: Props) => {
 
         })
     }, [stockPrices]);
+
+
     
+
+   
 
     return(
         <>
@@ -152,6 +157,8 @@ export let PortfolioScreen = ({ navigation }: Props) => {
         <View style={{padding: 20}}><Text style={{fontWeight: 'bold', fontSize: 18}}>My Stocks</Text></View>
             {Object.values(stockItems)}
         </ScrollView>
+     
+       
         </>
     );
 }
@@ -207,10 +214,11 @@ interface StockItemParams {
 }
 
 const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, stockName, navigation}: StockItemParams) => {
+
     return (
         <TouchableOpacity
                onPress={() =>
-                 navigation.navigate("StockScreen", {
+                navigation.navigate("StockScreen", {
                    stockName: stockName,
                    ticker: stockSymbol,
                  })
@@ -242,3 +250,4 @@ const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, sto
         
   );
 };
+
