@@ -128,6 +128,7 @@ export default function DividendsScreen({ navigation }: Props) {
     </SafeAreaView>
   );
 }
+}
 
 /*
   <TouchableOpacity onPress={() => navigation.navigate("DividendsScreen")}>

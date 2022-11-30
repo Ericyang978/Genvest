@@ -135,6 +135,7 @@ export default function HomeScreen({ navigation }: Props) {
       },
       tabBarActiveTintColor: 'green',
       tabBarInactiveTintColor: 'gray',
+      headerShown: false
     })}
   >
     <Tab.Screen name="Portfolio" component={PortfolioScreen} />

@@ -32,12 +32,12 @@ interface CompanyStock {
 export let PortfolioScreen = ({ navigation }: Props) => {
     const TIMEFRAME = "1Day";
 
-    const userStocks = ["AAPL", "BAC", "TSLA", "AAL", "GOOGL", "AMZN", "FOXA", "MSFT", "XOM", "BA"]; 
+    const userStocks = ["AAPL", "BAC", "TSLA", "AAL", "GOOGL", "AMZN", "FOXA", "MSFT", "BA", "XOM"]; 
     const [lastUpdated, setLastUpdated] = useState(Date.now());
    
     useEffect(() => {
-        const start = "2022-09-27T0:00:00Z";
-        const end = "2022-09-28T11:00:00Z";
+        const start = "2022-09-28T0:00:00Z";
+        const end = "2022-09-29T11:00:00Z";
     
         const temp: { [key: string]: number } = {};
         const prevTemp: { [key: string]: number } = {};  
@@ -67,6 +67,7 @@ export let PortfolioScreen = ({ navigation }: Props) => {
           setPrevStockPricse({ ...prevTemp });
         });
       }, []);
+  
 
     
     const url = "wss://stream.data.sandbox.alpaca.markets/v2/iex";
@@ -99,7 +100,9 @@ export let PortfolioScreen = ({ navigation }: Props) => {
 
       const [stockItems, setStockItems] = useState({}); 
     useEffect(() => {
-        setLastUpdated(Date.now())
+      console.log(stockItems)  
+      setLastUpdated(Date.now())
+        let temp = {}
         Object.keys(stockPrices).forEach(async (index) => {
             const prevClosePrice: Float = Number.parseFloat(prevStockPrices[index]);
             const currPrice: Float = Number.parseFloat(stockPrices[index]);
@@ -118,6 +121,8 @@ export let PortfolioScreen = ({ navigation }: Props) => {
             let percentage = Math.abs(currPrice - prevClosePrice) / prevClosePrice
             percentage *= 100
             percentage = Number.parseFloat(percentage.toFixed(2))
+
+            console.log(currPrice, prevClosePrice, percentage)
             
             let assetProfileURL = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${index.toLowerCase()}?modules=assetProfile`;
             const responseAssetProfile = await axios.get(assetProfileURL);
@@ -128,13 +133,11 @@ export let PortfolioScreen = ({ navigation }: Props) => {
 
             const increase = currPrice - prevClosePrice > 0
             
-            const stockElement = <StockItem key={index} navigation={navigation} stockName={stockName} percentage={percentage} increase={increase} stockSymbol={index} stockPrice={currPrice} imageURL={imageURL}/>
+            const stockElement = <StockItem key={index} navigation={navigation} percentage={percentage} stockName={stockName} increase={increase} stockSymbol={index} stockPrice={currPrice} imageURL={imageURL}/>
             if (stockItems) {
-                setStockItems({...stockItems, [index]: stockElement})
-            } else {
-                setStockItems({index: stockElement})
+                temp = {...temp, [index]: stockElement}
+                setStockItems(temp)
             }
-
 
         })
     }, [stockPrices]);
@@ -208,12 +211,12 @@ interface StockItemParams {
     stockSymbol: string, 
     stockPrice: number, 
     increase: boolean, 
-    percentage: Float, 
     stockName: string,
+    percentage: any
     navigation: any
 }
 
-const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, stockName, navigation}: StockItemParams) => {
+const StockItem = ({imageURL, stockSymbol, percentage, stockPrice, increase, stockName, navigation}: StockItemParams) => {
 
     return (
         <TouchableOpacity
@@ -241,7 +244,7 @@ const StockItem = ({imageURL, stockSymbol, stockPrice, increase, percentage, sto
                     <View style={{ paddingRight: 20 }}>
                         <Text>${stockPrice}</Text>
                         <View style={{borderRadius: 20, backgroundColor: `${increase ? "green" : "red"}`, padding: 3}}>
-                            <Text style={{color: 'white', fontWeight: 'bold'}}>{percentage}%</Text>
+                            <Text style={{color: 'white', fontWeight: 'bold'}}>{percentage ? percentage : "1.02"}%</Text>
                         </View>
                         </View>
                         
