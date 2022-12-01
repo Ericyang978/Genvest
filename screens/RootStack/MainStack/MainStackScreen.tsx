@@ -8,6 +8,7 @@ import SettingScreen from "./SettingScreen";
 import EducationScreen from "./EducationScreen"
 import DividendsScreen  from "./DividendsScreen";
 import Quiz1Screen from "./Quiz1Screen"
+import AccountInfoScreen from "./AccountInfoScreen"
 
 
 export type MainStackParamList = {
@@ -19,6 +20,7 @@ export type MainStackParamList = {
   EducationScreen: undefined;
   DividendsScreen: undefined;
   Quiz1Screen: undefined;
+  AccountInfoScreen: undefined;
 };
 
 const MainStack = createStackNavigator<any>();
@@ -74,6 +76,12 @@ export function MainStackScreen() {
         name='ConnectUserScreen'
         options={{ headerShown: false }}
         component={ConnectUserScreen}
+      />
+
+      <MainStack.Screen
+        name='AccountInfoScreen'
+        options={{ headerShown: false }}
+        component={AccountInfoScreen}
       />
 
 

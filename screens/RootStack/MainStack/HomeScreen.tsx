@@ -56,16 +56,7 @@ export default function HomeScreen({ navigation }: Props) {
     getUserAttributes(); //calls the function above
   }, []);
 
-  //Auth related methods
-  const logout = async () => {
-    signOut(auth)
-      .then(() => {})
-      .catch((error) => {
-        console.log("error in HomeScreen " + error.messsage);
-      });
-    return signOut;
-  };
-
+ 
   //App Bar (top of application)
   const AppBarComponent = () => {
     return (
