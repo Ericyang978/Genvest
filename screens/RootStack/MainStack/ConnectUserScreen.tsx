@@ -6,6 +6,7 @@ import { MainStackParamList } from "./MainStackScreen";
 import { getAuth, signOut } from "firebase/auth";
 import { getFirestore, doc, collection, query, getDoc, getDocs, updateDoc, where } from "firebase/firestore"; 
 import { UserAttributes } from "../../../models/UserAttributes.js";
+import {styles} from "./StylesFolder/ConnectUserScreen.Styles";
 
 
 
@@ -21,8 +22,8 @@ export default function ConnectUserScreen({ navigation }: Props) {
    //snack bar
    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
    const [visible, setVisible] = useState<boolean>(false);
-   const [allUserIDs, setAllUserIDs] = useState<string[]>([])
-   const [allUserEmails, setAllUserEmails] = useState<string[]>([])
+   const [currentUserAttributes, setCurrentUserAttributes] = useState<UserAttributes>();
+   const [activateUseEffect, setActivateUseEffect] = useState<boolean>(false);
 
 
    //Text input Email Search
@@ -35,31 +36,28 @@ export default function ConnectUserScreen({ navigation }: Props) {
   const db = getFirestore();
   const socialsCollection = collection(db, "UserAttributes");
 
-   //Initializes an array which contains all user's and their emails
-  //  useEffect(() => {
-  //   const unsubscribe = onSnapshot(query(socialsCollection), (querySnapshot) => {
-  //     let tempUserIDs: string[] = [];
-  //     let tempUserEmails: string[] = [];
-  //       querySnapshot.forEach((userAttributeDoc: any) => {
-  //         const tempUserIDValue: string = userAttributeDoc.id;
-  //         const tempUserEmailValue: string = userAttributeDoc.data().email
-  //           //this if statement makes sure that the user him/herself doesn't appear as a possible connection
-  //           //and that documents with empty emails (meaning invalid docs basically, since all users should
-  //           //have a doc that has an email since this process occurs when they first sign in) are ommitted 
-  //           if(auth.currentUser?.uid !==  tempUserIDValue && tempUserEmailValue!== ""){
-  //             tempUserIDs.push(tempUserIDValue);
-  //             tempUserEmails.push(tempUserEmailValue);
+ 
+  useEffect ( () => {
+    getUserConnectedAccounts(); 
+  },[activateUseEffect] );
 
-  //           }
-  //       });
-  //       setAllUserIDs(tempUserIDs);
-  //       setAllUserEmails(tempUserEmails);
-  //     });
-  //   return unsubscribe;
-  // }, []);
+  //function get's user's connect account information
+  const getUserConnectedAccounts = async () => {
+    if (auth.currentUser !== null){
+      const docRef = doc(db, "UserAttributes", auth.currentUser.uid );
+      const currentUserAttributeDoc = await getDoc(docRef)
+      const currentUserConnections: UserAttributes =  currentUserAttributeDoc.data() as UserAttributes;
+      currentUserConnections.userId = currentUserAttributeDoc.id;
 
+      //removes the first element in the list, which is "" because thats the default email
+      //in the first email
+      currentUserConnections.connectedAccountEmails.shift(); 
+      currentUserConnections.connectedAccounts.shift(); //same thing, makes sure the arrays correspond
 
-
+  
+      setCurrentUserAttributes(currentUserConnections);
+    }
+  }
   
 
 
@@ -89,15 +87,17 @@ export default function ConnectUserScreen({ navigation }: Props) {
 
         
         let searchedUserID: string = "";
+        let searchedUserEmail: string = "";
+
 
         queryUserAttributeSnapshot.forEach((doc) => {
           // doc.data() is never undefined for query doc snapshots
           console.log(doc.id, " => ", doc.data());
-           searchedUserID = doc.id;
+           searchedUserID = doc.id; //sets searched user ID to this variable
+           searchedUserEmail = doc.data().email; //sets searched User email to this variable
         });
 
         
-    console.log("Hello")
 
     //makes sure a use is signed in, and that the email is valid (I.e. there is a user w/ that email)
     if(auth.currentUser !== null &&  searchedUserID!==""){
@@ -114,11 +114,17 @@ export default function ConnectUserScreen({ navigation }: Props) {
             const newUserConnection = currentUserConnections.connectedAccounts;
             newUserConnection.push(searchedUserID);
 
+            const newUserConnectionEmail = currentUserConnections.connectedAccountEmails;
+            newUserConnectionEmail.push(searchedUserEmail)
+
             await updateDoc(doc(db, "UserAttributes", auth.currentUser.uid ), {
-                connectedAccounts: newUserConnection,
+                connectedAccounts: newUserConnection, //adds User ID
+                connectedAccountEmails: newUserConnectionEmail, //adds User email
             }); 
             setSnackBarMessage("Connection confirmed")
             setVisible(true);
+            setActivateUseEffect(!activateUseEffect); //changes the value so use effect updates
+
         }
         //sends a snackbar message that the searched user is already connected to current user
         else{
@@ -139,38 +145,120 @@ export default function ConnectUserScreen({ navigation }: Props) {
 
   const onDismissSnackBar = () => setVisible(false);
 
-  
+  //deletes contact
+  const deleteContact = async (selectedUser: string) => {
+    if (auth.currentUser !== null && currentUserAttributes!==undefined && currentUserAttributes.connectedAccountEmails!==null)  {
+      
+      let indexOfDelete: number = currentUserAttributes.connectedAccountEmails.indexOf(selectedUser);
+      
+       //don't need to subtract 1 since first element "" is removed, and index starts at 0
+      let temporaryConnectedUserEmails = currentUserAttributes.connectedAccountEmails;
+      let temporaryConnectUserIDs = currentUserAttributes.connectedAccounts;
+
+      temporaryConnectedUserEmails.splice(indexOfDelete,1);
+      temporaryConnectUserIDs.splice(indexOfDelete,1);
+
+      //adds empty "" email to front of array to standardized
+      temporaryConnectedUserEmails.unshift("")
+      temporaryConnectUserIDs.unshift("")
+
+      
+      // currentUserAttributes.connectedAccountEmails.splice(indexOfDelete-1,1)
+      // currentUserAttributes.connectedAccounts.splice(indexOfDelete-1,1)
+
+        await updateDoc(doc(db, "UserAttributes", auth.currentUser.uid ), {
+        connectedAccounts: temporaryConnectUserIDs, //deletes User ID
+        connectedAccountEmails: temporaryConnectedUserEmails, //deletes User Email
+        });
+
+        // setSnackBarMessage("Deletion confirmed")
+        // setVisible(true);
+
+    }
+    else{
+    console.log("in ConnectUserScreen, either currentuserAttributes doesnt exist or the connected Accounts doesn't exist")
+    }
+  }
+
+  //rendering 
+  const renderContact = ({ item }: { item: string }) => {
+
+    //determines what happens after clicking a card (go to person's account page?)
+    const onPress = () => {
+        //for now it is homeScreen, will be changed later
+      console.log("hello");
+     }
+
+     //renders a card if the email isn't blank and the emails match the search criteria
+     if (item !== ""){
+        return(
+            <Card style={{ margin: 10 }}>
+            <Card.Title 
+                title ={item}
+                titleStyle = {{margin: 0}}
+            />
+            <Card.Actions>
+              <Button icon="delete" mode="text" 
+               onPress={() => deleteContact(item)} >
+              delete
+              </Button>
+          </Card.Actions>
+
+         </Card>
+        );
+    }
+    else{
+        return(
+            <> </>
+        );
+    }
+};
 
   
 
  
   return(
-    <SafeAreaView>
+    <SafeAreaView style = {styles.container}>
       <AppBarComponent /> 
 
-      <Text> current user ID: {auth.currentUser?.uid}</Text>
-
+      <Text style = {styles.addAccountText}> Add Account </Text> 
   
-      <TextInput
-          keyboardType="email-address"
-          label="Search by email"
-          value={searchedEmail}
-          onChangeText={(searchedEmail) => setSearchedEmail(searchedEmail)}
-          style={{ backgroundColor: "white", marginTop: 20, marginBottom: 20 }}
-        />
+        <TextInput style = {styles.textInput}
+            keyboardType="email-address"
+            label="Search by email"
+            value={searchedEmail}
+            onChangeText={(searchedEmail) => setSearchedEmail(searchedEmail)}
+            // style={{ backgroundColor: "white", marginTop: 20, marginBottom: 20 }}
+          />
 
-    <Button mode="contained" onPress={addContact} > 
-        confirm
-     </Button>
+      <Button  style = {styles.confirmButton} mode="contained" onPress={addContact} > 
+          confirm
+      </Button>
 
-    <Snackbar
-          duration={1000}
+
+      <Snackbar style = {styles.snackBar}
+          duration={800}
           visible={visible}
           onDismiss={onDismissSnackBar}
           wrapperStyle = {{ bottom:0 }}
         >
           {snackBarMessage}
         </Snackbar>
+
+      <Text style = {styles.headerText}> Connected Accounts </Text> 
+      
+      <FlatList style = {styles.flatList}
+        data={currentUserAttributes?.connectedAccountEmails}
+         renderItem={renderContact}
+         keyExtractor={(_: any, index: number) => "key-" + index}
+
+         ListEmptyComponent={
+          <Text  style = {{textAlign: "center", fontSize: 20, color: "gray"}} >
+            No Contacts</Text> 
+        }
+      />
+
+      
     
 
      

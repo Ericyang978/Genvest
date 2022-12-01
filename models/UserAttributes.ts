@@ -4,6 +4,9 @@ export interface UserAttributes {
     userId: string;
     name: string;
     email: string; 
-    age: Double;   
+    age: number;   
+    phoneNumber: string;
     connectedAccounts: [string]; 
+    connectedAccountEmails: [string]; 
+
 }

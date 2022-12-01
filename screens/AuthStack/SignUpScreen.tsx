@@ -48,7 +48,9 @@ export default function SignUpScreen({ navigation }: Props) {
         age: age,
         email: auth.currentUser?.email?.toLowerCase(),
         name: "",
+        phoneNumber: "",
         connectedAccounts: [""],
+        connectedAccountEmails: [""],
       });
 
    } 
