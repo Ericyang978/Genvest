@@ -65,8 +65,8 @@ const StockScreen = ({ navigation, route }) => {
         {
           headers: {
             "Content-Type": "application/json",
-            "Apca-Api-Key-Id": "PKOWIJ6DPRMS6MHZQNWG",
-            "Apca-Api-Secret-Key": "gStXgFAxJgmzhXdyCY4dy65lrljU8wv2PbFfEk2i",
+            "Apca-Api-Key-Id": "",
+            "Apca-Api-Secret-Key": "",
           },
           params: {
             start: start,
